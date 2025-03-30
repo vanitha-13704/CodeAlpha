@@ -1,0 +1,157 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class StockTradingPlatform {
+
+    // Market data: Stock symbol and its price
+    private static final Map<String, Double> marketData = new HashMap<>();
+    private static Map<String, Integer> portfolio = new HashMap<>(); // User's stock portfolio
+
+    public static void main(String[] args) {
+        // Initialize market data with some stock symbols and their prices
+        marketData.put("AAPL", 145.09); // Apple
+        marketData.put("GOOG", 2749.12); // Google
+        marketData.put("AMZN", 3350.08); // Amazon
+        marketData.put("MSFT", 299.79); // Microsoft
+
+        // Scanner for user input
+        Scanner scanner = new Scanner(System.in);
+        
+        int choice;
+        do {
+            // Display menu
+            System.out.println("\nStock Trading Platform Menu:");
+            System.out.println("1. View Market Data");
+            System.out.println("2. Buy Stocks");
+            System.out.println("3. Sell Stocks");
+            System.out.println("4. View Portfolio");
+            System.out.println("5. View Portfolio Performance");
+            System.out.println("6. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+            
+            switch (choice) {
+                case 1:
+                    viewMarketData();
+                    break;
+                case 2:
+                    buyStocks(scanner);
+                    break;
+                case 3:
+                    sellStocks(scanner);
+                    break;
+                case 4:
+                    viewPortfolio();
+                    break;
+                case 5:
+                    viewPortfolioPerformance();
+                    break;
+                case 6:
+                    System.out.println("Exiting platform...");
+                    break;
+                default:
+                    System.out.println("Invalid choice! Please try again.");
+            }
+        } while (choice != 6);
+        
+        scanner.close();
+    }
+
+    // Method to view market data (stocks and their prices)
+    private static void viewMarketData() {
+        System.out.println("\nMarket Data:");
+        for (Map.Entry<String, Double> entry : marketData.entrySet()) {
+            System.out.println("Stock: " + entry.getKey() + " | Price: $" + entry.getValue());
+        }
+    }
+
+    // Method to buy stocks
+    private static void buyStocks(Scanner scanner) {
+        System.out.print("\nEnter the stock symbol you want to buy: ");
+        String stockSymbol = scanner.next().toUpperCase();
+        
+        if (!marketData.containsKey(stockSymbol)) {
+            System.out.println("Invalid stock symbol!");
+            return;
+        }
+
+        System.out.print("Enter the quantity of " + stockSymbol + " you want to buy: ");
+        int quantity = scanner.nextInt();
+        
+        if (quantity <= 0) {
+            System.out.println("Invalid quantity!");
+            return;
+        }
+
+        // Update portfolio with the bought stock
+        portfolio.put(stockSymbol, portfolio.getOrDefault(stockSymbol, 0) + quantity);
+        System.out.println("You have bought " + quantity + " shares of " + stockSymbol + ".");
+    }
+
+    // Method to sell stocks
+    private static void sellStocks(Scanner scanner) {
+        System.out.print("\nEnter the stock symbol you want to sell: ");
+        String stockSymbol = scanner.next().toUpperCase();
+        
+        if (!portfolio.containsKey(stockSymbol)) {
+            System.out.println("You don't own any shares of " + stockSymbol + "!");
+            return;
+        }
+
+        System.out.print("Enter the quantity of " + stockSymbol + " you want to sell: ");
+        int quantity = scanner.nextInt();
+        
+        if (quantity <= 0) {
+            System.out.println("Invalid quantity!");
+            return;
+        }
+        
+        int ownedQuantity = portfolio.get(stockSymbol);
+        
+        if (quantity > ownedQuantity) {
+            System.out.println("You don't own enough shares of " + stockSymbol + "!");
+            return;
+        }
+
+        // Update portfolio by selling the stock
+        portfolio.put(stockSymbol, ownedQuantity - quantity);
+        System.out.println("You have sold " + quantity + " shares of " + stockSymbol + ".");
+    }
+
+    // Method to view the current stock portfolio
+    private static void viewPortfolio() {
+        System.out.println("\nYour Portfolio:");
+        if (portfolio.isEmpty()) {
+            System.out.println("Your portfolio is empty.");
+            return;
+        }
+
+        for (Map.Entry<String, Integer> entry : portfolio.entrySet()) {
+            System.out.println("Stock: " + entry.getKey() + " | Quantity: " + entry.getValue());
+        }
+    }
+
+    // Method to view portfolio performance (current portfolio value)
+    private static void viewPortfolioPerformance() {
+        double totalValue = 0.0;
+        
+        System.out.println("\nPortfolio Performance:");
+        if (portfolio.isEmpty()) {
+            System.out.println("Your portfolio is empty.");
+            return;
+        }
+
+        for (Map.Entry<String, Integer> entry : portfolio.entrySet()) {
+            String stockSymbol = entry.getKey();
+            int quantity = entry.getValue();
+            double stockPrice = marketData.get(stockSymbol);
+            double stockValue = stockPrice * quantity;
+            totalValue += stockValue;
+
+            System.out.println("Stock: " + stockSymbol + " | Quantity: " + quantity + " | Price: $" + stockPrice + " | Value: $" + stockValue);
+        }
+
+        System.out.println("Total Portfolio Value: $" + totalValue);
+    }
+}
